@@ -1,0 +1,39 @@
+{
+  "name": "dsh-triton-riscv",
+  "version": "0.1.0",
+  "description": "DeepSeek Harness bundle for guarded Triton-RISCV operator development and validation",
+  "private": true,
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./lib/client.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "index.js",
+    "lib/client.js",
+    "cordis.patch.yml",
+    "policy.md",
+    "README.md",
+    "README.zh.md"
+  ],
+  "scripts": {
+    "build": "node --check index.js && node --check lib/client.js",
+    "test": "node --test test/*.test.mjs",
+    "prepack": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "license": "Apache-2.0",
+  "dsh": {
+    "client": {
+      "platform": "web"
+    },
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  }
+}

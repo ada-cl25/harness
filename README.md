@@ -33,3 +33,9 @@ After a successful build, start the web profile through the launcher. `DEEPSEEK_
 cd harness/
 DEEPSEEK_API_KEY=sk-... ./dsh web
 ```
+
+## Triton-RISCV Agent
+
+[`dsh-triton-riscv`](packages/dsh-triton-riscv/README.md) adds guarded
+Triton-RISCV operator discovery, development, validation, diagnosis, repair,
+memory retrieval, and remote RISC-V execution to the Harness web profile.
