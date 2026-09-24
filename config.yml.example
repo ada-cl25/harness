@@ -31,3 +31,26 @@
     hfToken: ''
     # [Optional] HuggingFace API base URL
     hfEndpoint: https://huggingface.co
+
+# Optional Triton-RISCV tools. Installed once in the Harness profile; repoRoot is
+# only the operator worktree, not an installation directory. Keep disabled until
+# paths are configured. No model API key belongs in this block.
+- id: triton-riscv-native-host
+  config:
+    enabled: false
+    repoRoot: '' # Absolute operator checkout path
+    # Optional; defaults to packages/dsh-triton-riscv/.venv/bin/python
+    # python: /absolute/path/to/harness/packages/dsh-triton-riscv/.venv/bin/python
+    permissions:
+      validation: false
+      development: false
+      repair: false
+    remote:
+      host: '' # SSH config alias, e.g. sg2044
+      repository: '' # Absolute remote checkout, with prepared toolchain
+      required: false
+    memory:
+      retrievalMode: legacy
+      contextFormat: classic
+      embedding:
+        provider: none

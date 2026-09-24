@@ -1,31 +1,16 @@
-# Install this bundle into a normal DeepSeek Harness profile. The Harness MCP
-# client launches the Python domain engine from the configured Triton-RISCV checkout.
+# Configure triton-riscv-native-host in the repository's config.yml.
+# Installing the bundle never launches Python or runs a test by itself.
 - insert:
     - id: triton-riscv-domain-policy
       name: dsh-triton-riscv
 
+    - id: triton-riscv-native-host
+      name: dsh-triton-riscv/native
+      config:
+        enabled: false
+
+    # Dependency anchor only. The native-host plugin mounts a scoped MCP child
+    # with validated config. Do not enable a second instance of this namespace.
     - id: mcp-triton-riscv
       name: '@deepseek-ai/dsh-mcp-client'
-      config:
-        serverName: triton_riscv
-        transport: stdio
-        command: !!js process.env.TRITON_RISCV_MCP_PYTHON ?? 'python3'
-        args: ['-m', 'codex_agent.harness.mcp_server']
-        env:
-          TRITON_RISCV_REPO_ROOT: !!js process.env.TRITON_RISCV_CHECKOUT ?? process.env.DSH_CWD ?? process.cwd()
-          TRITON_RISCV_ALLOW_VALIDATION: !!js process.env.TRITON_RISCV_ALLOW_VALIDATION ?? '0'
-          TRITON_RISCV_ALLOW_REPAIR_APPLY: !!js process.env.TRITON_RISCV_ALLOW_REPAIR_APPLY ?? '0'
-          TRITON_RISCV_ALLOW_DEVELOPMENT_APPLY: !!js process.env.TRITON_RISCV_ALLOW_DEVELOPMENT_APPLY ?? '0'
-          TRITON_RISCV_REQUIRE_REMOTE: !!js process.env.TRITON_RISCV_REQUIRE_REMOTE ?? '0'
-          TRITON_RISCV_REQUIRE_APPROVED_VALIDATION: !!js process.env.TRITON_RISCV_REQUIRE_APPROVED_VALIDATION ?? '1'
-          TRITON_RISCV_MEMORY_DB: !!js process.env.TRITON_RISCV_MEMORY_DB ?? ((process.env.TRITON_RISCV_CHECKOUT ?? process.env.DSH_CWD ?? process.cwd()) + '/agent-results/memory.sqlite3')
-          TRITON_RISCV_EMBEDDING_PROVIDER: !!js process.env.TRITON_RISCV_EMBEDDING_PROVIDER ?? 'none'
-          TRITON_RISCV_EMBEDDING_MODEL: !!js process.env.TRITON_RISCV_EMBEDDING_MODEL ?? ''
-          TRITON_RISCV_EMBEDDING_BASE_URL: !!js process.env.TRITON_RISCV_EMBEDDING_BASE_URL ?? ''
-          TRITON_RISCV_EMBEDDING_API_KEY_ENV: !!js process.env.TRITON_RISCV_EMBEDDING_API_KEY_ENV ?? 'AGENT_EMBEDDING_API_KEY'
-          AGENT_EMBEDDING_API_KEY: !!js process.env.AGENT_EMBEDDING_API_KEY ?? ''
-          RISCV_HOST: !!js process.env.RISCV_HOST ?? ''
-          RISCV_REPO: !!js process.env.RISCV_REPO ?? ''
-        cwd: !!js process.env.TRITON_RISCV_CHECKOUT ?? process.env.DSH_CWD ?? process.cwd()
-        toolCallTimeoutMs: 960000
-        failOnStartupError: true
+      disabled: true

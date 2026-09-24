@@ -39,3 +39,9 @@ DEEPSEEK_API_KEY=sk-... ./dsh web
 [`dsh-triton-riscv`](packages/dsh-triton-riscv/README.md) adds guarded
 Triton-RISCV operator discovery, development, validation, diagnosis, repair,
 memory retrieval, and remote RISC-V execution to the Harness web profile.
+
+The install-all script also installs this package's Python backend, which requires
+Python >=3.10. If `python3` is older, run
+`PYTHON=/absolute/path/to/python3.10 ./tools/scripts/install-all.sh`.
+Configure `triton-riscv-native-host` in `config.yml` to enable it; installation
+alone does not enable operator execution or write permissions.

@@ -1,28 +1,26 @@
 import { spawn } from 'node:child_process'
-import { readFileSync } from 'node:fs'
-import { isAbsolute, join } from 'node:path'
+import { dirname, isAbsolute, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import { PROMPT_SECTIONS } from './lib/prompts.js'
+export { TRITON_RISCV_SYSTEM_PROMPT } from './lib/prompts.js'
 
 export const name = 'triton-riscv-domain-policy'
 
 export const inject = ['systemPrompt']
 
-export const TRITON_RISCV_SYSTEM_PROMPT = readFileSync(
-  new URL('./policy.md', import.meta.url),
-  'utf8',
-).trim()
+export function resolveWorkbenchLaunch(config = {}) {
+  if (config.enabled === undefined || config.enabled === false) return null
+  if (config.enabled !== true) throw new Error('workbench.enabled must be a boolean')
 
-export function resolveWorkbenchLaunch(env = process.env) {
-  if (env.TRITON_RISCV_WORKBENCH_AUTOSTART === '0') return null
-
-  const checkout = (env.TRITON_RISCV_CHECKOUT ?? '').trim()
+  const checkout = (config.repoRoot ?? '').trim()
   if (!checkout) {
-    throw new Error('TRITON_RISCV_CHECKOUT is required to start the Triton-RISCV workbench')
+    throw new Error('workbench.repoRoot is required to start the Triton-RISCV workbench')
   }
   if (!isAbsolute(checkout)) {
-    throw new Error('TRITON_RISCV_CHECKOUT must be an absolute path')
+    throw new Error('workbench.repoRoot must be an absolute path')
   }
 
-  const portText = (env.TRITON_RISCV_WORKBENCH_PORT ?? '8765').trim()
+  const portText = String(config.port ?? 8765).trim()
   if (!/^\d+$/.test(portText)) {
     throw new Error('TRITON_RISCV_WORKBENCH_PORT must be an integer')
   }
@@ -32,24 +30,20 @@ export function resolveWorkbenchLaunch(env = process.env) {
   }
 
   return {
-    command: env.TRITON_RISCV_MCP_PYTHON ?? join(checkout, '.harness-venv', 'bin', 'python'),
-    args: ['-m', 'codex_agent.platform', '--host', '127.0.0.1', '--port', String(port)],
+    command: config.python ?? join(dirname(fileURLToPath(import.meta.url)), '.venv', 'bin', 'python'),
+    args: ['-I', '-m', 'codex_agent.platform', '--host', '127.0.0.1', '--port', String(port)],
     cwd: checkout,
     url: `http://127.0.0.1:${port}`,
   }
 }
 
-export function apply(ctx) {
-  ctx.effect(
-    () => ctx.systemPrompt.section({
-      name: 'tool:triton-riscv',
-      order: 180,
-      text: TRITON_RISCV_SYSTEM_PROMPT,
-    }),
-    'triton-riscv.system-prompt',
-  )
+export function apply(ctx, config = {}) {
+  for (const section of PROMPT_SECTIONS) {
+    ctx.effect(() => ctx.systemPrompt.section(section), section.name)
+  }
 
-  const launch = resolveWorkbenchLaunch()
+  // Native Harness already owns its model loop. The separate workbench is opt-in.
+  const launch = resolveWorkbenchLaunch(config.workbench)
   if (launch === null) return
   ctx.effect(() => {
     const child = spawn(launch.command, launch.args, {
